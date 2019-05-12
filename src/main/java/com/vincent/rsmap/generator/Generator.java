@@ -2,56 +2,61 @@ package com.vincent.rsmap.generator;
 
 import com.vincent.rsmap.annotaions.Column;
 import com.vincent.rsmap.utils.StringUtils;
+import org.jdom2.DocType;
+import org.jdom2.Document;
+import org.jdom2.Element;
+import org.jdom2.output.Format;
+import org.jdom2.output.XMLOutputter;
 
 import java.io.File;
+import java.io.FileOutputStream;
 import java.io.FileWriter;
 import java.lang.reflect.Field;
 import java.util.List;
 
 public class Generator {
 
-    public static void generator(List<Class> classes,String packageName) throws Exception{
+    public static void generator(List<Class> classes, String packageName) throws Exception {
         System.out.println(Generator.class.getResource("/").getPath());
-        String toFile = Generator.class.getResource("/").getPath() + File.pathSeparator + packageName.replaceAll(".", File.pathSeparator);
+        String toFile = Generator.class.getResource("/").getPath() + "/" + packageName.replaceAll(".", "/");
         File path = new File(toFile);
         if (!path.exists()) {
             path.mkdirs();
-            System.out.println("create file:"+path.getPath());
+            System.out.println("create file:" + path.getPath());
         }
-        System.out.println(path.getPath());
-        File file = new File(toFile+"/CommonResultMapper.xml");
-        FileWriter writer = null;
-        try {
-            if (!file.exists()) {
-                file.createNewFile();
-            }
-            writer = new FileWriter(file);
-            writer.write("<?xml version=\"1.0\" encoding=\"UTF-8\"?>\n" +
-                    "<!DOCTYPE mapper PUBLIC \"-//mybatis.org//DTD Mapper 3.0//EN\" \"http://mybatis.org/dtd/mybatis-3-mapper.dtd\"> \n");
-            String nameSpace = toFile.replaceAll("/", ".")+"CommonResultMapper";
 
-            writer.write("<mapper namespace=\""+ nameSpace +"\">\n");
+        Document document = null;
+
+        try {
+            Element root = new Element("mapper");
+            root.setAttribute("namespace", toFile.replaceAll("/", ".") + "CommonResultMapper");
+
+            document = new Document(root);
+            DocType docType = new DocType("mapper", "-//mybatis.org/DTD Mapper 3.0//EN", "http://mybatis.org/dtd/mybatis-3-mapper.dtd");
+            document.setDocType(docType);
             for (Class clz : classes) {
-                processClass(writer,clz);
+                processClass(root, clz,packageName);
             }
-            writer.write("</mapper>");
-            writer.flush();
+
+            XMLOutputter outputter = new XMLOutputter();
+            outputter.setFormat(Format.getPrettyFormat());
+            outputter.setFormat(outputter.getFormat().setEncoding("UTF-8"));
+
+            String systemPath = Generator.class.getResource("/").getPath();
+            outputter.output(document,new FileOutputStream(toFile  + "CommonResultMapper.xml"));
         } catch (Exception e) {
             e.printStackTrace();
-            throw new RuntimeException(e);
-        }
-        if (writer != null) {
-            writer.close();
         }
     }
 
-    public static void processClass(FileWriter writer,Class clzz) throws Exception{
-        StringBuilder stringBuilder = new StringBuilder();
-        String id = clzz.getSimpleName();
+    public static void processClass(Element root, Class clzz,String packageName) throws Exception {
+        String id = clzz.getName();
         String type = clzz.getName();
-        Field []fields = clzz.getDeclaredFields();
+        Field[] fields = clzz.getDeclaredFields();
         if (fields != null && fields.length > 0) {
-            stringBuilder.append("<resultMap id=\"").append(id).append("\" type=\"").append(type).append("\">");
+            Element resultMap = new Element("resultMap");
+            resultMap.setAttribute("id", id);
+            resultMap.setAttribute("type", type);
             for (Field field : fields) {
                 Column annotation = field.getAnnotation(Column.class);
                 if (annotation != null) {
@@ -63,20 +68,19 @@ public class Generator {
                     } else {
                         columnName = annotation.column().replaceAll(" ", "");
                     }
-                    stringBuilder.append("<result ").append("property=\"").append(fieldName).append("\" ")
-                            .append("javaType=\"").append(javaType).append("\" ")
-                            .append("column=\"").append(columnName).append("\" ");
+                    Element child = new Element("result");
+                    child.setAttribute("property", fieldName);
+                    child.setAttribute("javaType", javaType);
+                    child.setAttribute("column", columnName);
                     if (!StringUtils.isEmpty(annotation.jdbcType())) {
-                        stringBuilder.append("jdbcType=\"").append(annotation.jdbcType().replaceAll(" ", "").toUpperCase()).append("\"");
+                        child.setAttribute("jdbcType", annotation.jdbcType().replaceAll(" ", ""));
                     }
-                    stringBuilder.append(" />");
+                    resultMap.addContent(child);
                 } else {
                     continue;
                 }
             }
-            stringBuilder.append("</resultMap>");
-            writer.write(stringBuilder.toString());
-            writer.write("\n");
+            root.addContent(resultMap);
         }
     }
 }
