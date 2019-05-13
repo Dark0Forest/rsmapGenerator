@@ -1,0 +1,12 @@
+/.project
+/.classpath
+/.settings
+
+/target/
+/sdklog/
+/overlays/
+
+/.idea/
+
+*.class
+*.iml
