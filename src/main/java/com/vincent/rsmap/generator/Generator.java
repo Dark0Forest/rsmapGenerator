@@ -16,9 +16,9 @@ import java.util.List;
 
 public class Generator {
 
-    public static void generator(List<Class> classes, String packageName) throws Exception {
+    public static void generator(List<Class> classes, String packageName,String toFile) throws Exception {
         System.out.println(Generator.class.getResource("/").getPath());
-        String toFile = Generator.class.getResource("/").getPath() + "/" + packageName.replaceAll(".", "/");
+        toFile = Generator.class.getResource("/").getPath() + "/" + toFile;
         File path = new File(toFile);
         if (!path.exists()) {
             path.mkdirs();
@@ -29,7 +29,7 @@ public class Generator {
 
         try {
             Element root = new Element("mapper");
-            root.setAttribute("namespace", toFile.replaceAll("/", ".") + "CommonResultMapper");
+            root.setAttribute("namespace", packageName + "." + "CommonResultMapper");
 
             document = new Document(root);
             DocType docType = new DocType("mapper", "-//mybatis.org/DTD Mapper 3.0//EN", "http://mybatis.org/dtd/mybatis-3-mapper.dtd");
@@ -43,14 +43,14 @@ public class Generator {
             outputter.setFormat(outputter.getFormat().setEncoding("UTF-8"));
 
             String systemPath = Generator.class.getResource("/").getPath();
-            outputter.output(document,new FileOutputStream(toFile  + "CommonResultMapper.xml"));
+            outputter.output(document,new FileOutputStream(toFile + File.separator  + "CommonResultMapper.xml"));
         } catch (Exception e) {
             e.printStackTrace();
         }
     }
 
     public static void processClass(Element root, Class clzz,String packageName) throws Exception {
-        String id = clzz.getName();
+        String id = clzz.getSimpleName();
         String type = clzz.getName();
         Field[] fields = clzz.getDeclaredFields();
         if (fields != null && fields.length > 0) {

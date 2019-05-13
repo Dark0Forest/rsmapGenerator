@@ -6,7 +6,7 @@
 /sdklog/
 /overlays/
 
-/.idea/
-
+.idea/*
+target/
 *.class
 *.iml

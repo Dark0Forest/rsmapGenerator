@@ -12,7 +12,7 @@ public class Test {
             for (Class clz:classes) {
                 System.out.println(clz.getName());
             }
-            Generator.generator(classes, "com.vincent.rsmap.mapper");
+            Generator.generator(classes, "com.vincent.rsmap.mapper","com/vincent/rsmap/xmlmapper");
         }
     }
 }
