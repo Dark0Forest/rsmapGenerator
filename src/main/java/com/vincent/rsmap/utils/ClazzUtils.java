@@ -49,6 +49,7 @@ public class ClazzUtils {
                     //获取jar里的一个实体 可以是目录 和一些jar包里的其他文件 如META-INF等文件
                     JarEntry entry = entries.nextElement();
                     String name = entry.getName();
+                    System.out.println("************" + name);
                     //如果是以/开头的
                     if (name.charAt(0) == '/') {
                         //获取后面的字符串
@@ -66,6 +67,7 @@ public class ClazzUtils {
                         if ((idx != -1) || recursive) {
                             //如果是一个.class文件 而且不是目录
                             if (name.endsWith(".class") && !entry.isDirectory()) {
+                                System.out.println(name);
                                 //去掉后面的".class" 获取真正的类名
                                 String className = name.substring(packageName.length() + 1, name.length() - 6);
                                 //添加到classes

@@ -16,7 +16,7 @@ import java.util.List;
 
 public class Generator {
 
-    public static void generator(List<Class> classes, String packageName,String toFile) throws Exception {
+    public static void generator(List<Class> classes, String packageName,String toFile,String mapperName) throws Exception {
         System.out.println(Generator.class.getResource("/").getPath());
         toFile = System.getProperty("user.dir") + "/" + toFile;
         File path = new File(toFile);
@@ -29,7 +29,7 @@ public class Generator {
 
         try {
             Element root = new Element("mapper");
-            root.setAttribute("namespace", packageName + "." + "CommonResultMapper");
+            root.setAttribute("namespace", packageName + "." + mapperName);
 
             document = new Document(root);
             DocType docType = new DocType("mapper", "-//mybatis.org/DTD Mapper 3.0//EN", "http://mybatis.org/dtd/mybatis-3-mapper.dtd");
@@ -42,8 +42,7 @@ public class Generator {
             outputter.setFormat(Format.getPrettyFormat());
             outputter.setFormat(outputter.getFormat().setEncoding("UTF-8"));
 
-            String systemPath = Generator.class.getResource("/").getPath();
-            outputter.output(document,new FileOutputStream(toFile + File.separator  + "CommonResultMapper.xml"));
+            outputter.output(document,new FileOutputStream(toFile + File.separator + mapperName + ".xml"));
         } catch (Exception e) {
             e.printStackTrace();
         }
@@ -73,7 +72,7 @@ public class Generator {
                     child.setAttribute("javaType", javaType);
                     child.setAttribute("column", columnName);
                     if (!StringUtils.isEmpty(annotation.jdbcType())) {
-                        child.setAttribute("jdbcType", annotation.jdbcType().replaceAll(" ", ""));
+                        child.setAttribute("jdbcType", annotation.jdbcType().replaceAll(" ", "").toUpperCase());
                     }
                     resultMap.addContent(child);
                 } else {
