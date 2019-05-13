@@ -18,7 +18,7 @@ public class Generator {
 
     public static void generator(List<Class> classes, String packageName,String toFile) throws Exception {
         System.out.println(Generator.class.getResource("/").getPath());
-        toFile = Generator.class.getResource("/").getPath() + "/" + toFile;
+        toFile = System.getProperty("user.dir") + "/" + toFile;
         File path = new File(toFile);
         if (!path.exists()) {
             path.mkdirs();

@@ -1,0 +1,9 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org/DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.vincent.rsmap.mapper.CommonResultMapper">
+  <resultMap id="User" type="com.vincent.rsmap.pojo.User">
+    <result property="username" javaType="string" column="username" />
+    <result property="password" javaType="string" column="pwd" />
+    <result property="age" javaType="integer" column="age" jdbcType="int" />
+  </resultMap>
+</mapper>
